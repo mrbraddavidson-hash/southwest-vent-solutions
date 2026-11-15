@@ -1,4 +1,4 @@
-// Southwest Vent Solutions - Interactive Logic
+// Southwest Vent Solutions - Specialized Cleaning Interactive Logic
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide Icons
@@ -13,10 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (mobileToggle && navMenu) {
     mobileToggle.addEventListener('click', () => {
       navMenu.classList.toggle('open');
-      const icon = mobileToggle.querySelector('svg');
-      if (icon) {
-        // Toggle icon state if desired
-      }
     });
 
     // Close mobile nav when clicking a link
@@ -28,30 +24,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Interactive Price Calculator
-  setupCostCalculator();
-
-  // Accordion Interaction
-  setupAccordion();
+  setupCleaningCalculator();
 });
 
-// Calculator Implementation
-function setupCostCalculator() {
+// Cleaning Calculator Implementation
+function setupCleaningCalculator() {
   const serviceButtons = document.querySelectorAll('#calcServiceOptions .calc-opt-btn');
   const sqftRange = document.getElementById('sqftRange');
   const sqftDisplay = document.getElementById('sqftDisplay');
   const addonCheckboxes = document.querySelectorAll('.addon-checkbox input');
   const totalPriceDisplay = document.getElementById('totalPriceDisplay');
 
-  let currentBase = 179;
+  let currentBase = 389;
+
+  const sizeLabels = {
+    1: 'Small (6 - 8 ft canopy)',
+    2: 'Standard (10 - 12 ft canopy)',
+    3: 'Large (14 - 18 ft canopy)',
+    4: 'Mega (20+ ft multi-hood)'
+  };
+
+  const sizeMultipliers = {
+    1: -60,
+    2: 0,
+    3: 110,
+    4: 240
+  };
 
   function calculateTotal() {
-    const sqft = parseInt(sqftRange.value, 10);
-    
-    // Scale pricing slightly for larger homes (e.g. +$25 per 500 sqft above 1500)
-    let sizeMultiplier = 0;
-    if (sqft > 1500) {
-      sizeMultiplier = Math.floor((sqft - 1500) / 500) * 25;
-    }
+    const sizeLevel = parseInt(sqftRange.value, 10);
+    const sizeOffset = sizeMultipliers[sizeLevel] || 0;
 
     let addonsTotal = 0;
     addonCheckboxes.forEach(cb => {
@@ -60,10 +62,10 @@ function setupCostCalculator() {
       }
     });
 
-    const finalTotal = currentBase + sizeMultiplier + addonsTotal;
+    const finalTotal = currentBase + sizeOffset + addonsTotal;
     
     if (totalPriceDisplay) {
-      totalPriceDisplay.textContent = `$${finalTotal}`;
+      totalPriceDisplay.textContent = `$${Math.max(finalTotal, 99)}`;
     }
   }
 
@@ -81,7 +83,7 @@ function setupCostCalculator() {
   if (sqftRange && sqftDisplay) {
     sqftRange.addEventListener('input', (e) => {
       const val = parseInt(e.target.value, 10);
-      sqftDisplay.textContent = `${val.toLocaleString()} sq ft`;
+      sqftDisplay.textContent = sizeLabels[val] || `${val}`;
       calculateTotal();
     });
   }
@@ -95,39 +97,11 @@ function setupCostCalculator() {
   calculateTotal();
 }
 
-// Accordion Implementation
-function setupAccordion() {
-  const faqItems = document.querySelectorAll('.faq-item');
-
-  faqItems.forEach(item => {
-    const questionBtn = item.querySelector('.faq-question');
-    const answer = item.querySelector('.faq-answer');
-
-    questionBtn.addEventListener('click', () => {
-      const isActive = item.classList.contains('active');
-
-      // Close all others
-      faqItems.forEach(otherItem => {
-        otherItem.classList.remove('active');
-        const otherAnswer = otherItem.querySelector('.faq-answer');
-        if (otherAnswer) otherAnswer.style.maxHeight = null;
-      });
-
-      if (!isActive) {
-        item.classList.add('active');
-        answer.style.maxHeight = answer.scrollHeight + 30 + 'px';
-      }
-    });
-  });
-}
-
 // Form Submission Simulation
 function handleFormSubmit(form) {
   const submitBtn = form.querySelector('button[type="submit"]');
-  const originalText = submitBtn.innerHTML;
-
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<span>Dispatching Request...</span>`;
+  submitBtn.innerHTML = `<span>Checking Scheduling Availability...</span>`;
 
   setTimeout(() => {
     form.style.display = 'none';
